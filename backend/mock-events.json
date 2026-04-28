@@ -1,0 +1,98 @@
+[
+  {
+    "id": "EVT-001",
+    "device_id": "E-001",
+    "timestamp": "2026-04-27T08:15:00Z",
+    "event_type": "energy_usage",
+    "value": 10,
+    "status": "normal"
+  },
+  {
+    "id": "EVT-002",
+    "device_id": "E-001",
+    "timestamp": "2026-04-27T10:30:00Z",
+    "event_type": "temperature",
+    "value": 24,
+    "status": "normal"
+  },
+  {
+    "id": "EVT-003",
+    "device_id": "E-001",
+    "timestamp": "2026-04-27T13:45:00Z",
+    "event_type": "voltage",
+    "value": 231,
+    "status": "warning"
+  },
+  {
+    "id": "EVT-004",
+    "device_id": "E-001",
+    "timestamp": "2026-04-27T17:05:00Z",
+    "event_type": "energy_usage",
+    "value": 16,
+    "status": "normal"
+  },
+  {
+    "id": "EVT-005",
+    "device_id": "E-002",
+    "timestamp": "2026-04-27T08:20:00Z",
+    "event_type": "energy_usage",
+    "value": 18,
+    "status": "normal"
+  },
+  {
+    "id": "EVT-006",
+    "device_id": "E-002",
+    "timestamp": "2026-04-27T11:10:00Z",
+    "event_type": "temperature",
+    "value": 31,
+    "status": "warning"
+  },
+  {
+    "id": "EVT-007",
+    "device_id": "E-002",
+    "timestamp": "2026-04-27T14:25:00Z",
+    "event_type": "voltage",
+    "value": 245,
+    "status": "critical"
+  },
+  {
+    "id": "EVT-008",
+    "device_id": "E-002",
+    "timestamp": "2026-04-27T18:40:00Z",
+    "event_type": "energy_usage",
+    "value": 21,
+    "status": "normal"
+  },
+  {
+    "id": "EVT-009",
+    "device_id": "E-003",
+    "timestamp": "2026-04-27T09:00:00Z",
+    "event_type": "energy_usage",
+    "value": 12,
+    "status": "normal"
+  },
+  {
+    "id": "EVT-010",
+    "device_id": "E-003",
+    "timestamp": "2026-04-27T12:35:00Z",
+    "event_type": "temperature",
+    "value": 28,
+    "status": "normal"
+  },
+  {
+    "id": "EVT-011",
+    "device_id": "E-003",
+    "timestamp": "2026-04-27T15:50:00Z",
+    "event_type": "voltage",
+    "value": 238,
+    "status": "warning"
+  },
+  {
+    "id": "EVT-012",
+    "device_id": "E-003",
+    "timestamp": "2026-04-27T19:05:00Z",
+    "event_type": "energy_usage",
+    "value": 15,
+    "status": "normal"
+  }
+]

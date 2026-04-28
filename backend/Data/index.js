@@ -5,11 +5,14 @@ const {
   preflightResponse,
 } = require("../shared/auth");
 const { emit, finishRequest, maskDeviceId, startRequest } = require("../shared/logging");
+const fs = require("fs");
+const path = require("path");
 
-const allData = [
-  { device_id: "E-001", value: 10 },
-  { device_id: "E-002", value: 20 },
-];
+const EVENTS_FILE = path.join(__dirname, "../mock-events.json");
+
+function readEvents() {
+  return JSON.parse(fs.readFileSync(EVENTS_FILE, "utf8"));
+}
 
 module.exports = async function data(context, req) {
   const request = startRequest(context, req, "/api/data");
@@ -23,11 +26,12 @@ module.exports = async function data(context, req) {
   try {
     const auth = await authenticate(req);
     const { role, device_id } = auth.claims;
+    const events = readEvents();
 
     let visibleData;
 
     if (role === "admin") {
-      visibleData = allData;
+      visibleData = events;
     } else if (role === "user") {
       if (!device_id) {
         emit(context, "warn", "authz.denied", {
@@ -47,7 +51,7 @@ module.exports = async function data(context, req) {
         return;
       }
 
-      visibleData = allData.filter((item) => item.device_id === device_id);
+      visibleData = events.filter((event) => event.device_id === device_id);
     } else {
       emit(context, "warn", "authz.denied", {
         correlationId: request.correlationId,

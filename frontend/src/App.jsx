@@ -3,6 +3,73 @@ import { useAuth } from "react-oidc-context";
 import { API_BASE, COGNITO_DOMAIN, LOGOUT_URI, OIDC_CONFIG } from "./config";
 import "./App.css";
 
+const STATUS_LABELS = {
+  normal: "Normal",
+  warning: "Warning",
+  critical: "Critical",
+};
+
+function formatEventType(eventType) {
+  return eventType.replace(/_/g, " ");
+}
+
+function formatStatus(status) {
+  return STATUS_LABELS[status] || status;
+}
+
+function formatTimestamp(timestamp) {
+  return timestamp.replace("T", " ").replace("Z", " UTC");
+}
+
+function buildTotalsByDevice(events) {
+  const totals = events.reduce((acc, event) => {
+    acc[event.device_id] = (acc[event.device_id] || 0) + event.value;
+    return acc;
+  }, {});
+
+  return Object.entries(totals).map(([label, value]) => ({ label, value }));
+}
+
+function buildCounts(events, field) {
+  const counts = events.reduce((acc, event) => {
+    const key = event[field];
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(counts).map(([label, value]) => ({ label, value }));
+}
+
+function SimpleBarChart({ title, items, labelFormatter = (label) => label, valueFormatter }) {
+  const maxValue = Math.max(...items.map((item) => item.value), 0);
+
+  return (
+    <div className="chart-panel">
+      <h3>{title}</h3>
+      {items.length === 0 ? (
+        <p className="muted">No events to chart.</p>
+      ) : (
+        <div className="bar-chart">
+          {items.map((item, index) => {
+            const width = maxValue > 0 ? `${Math.max((item.value / maxValue) * 100, 6)}%` : "0%";
+            const displayValue = valueFormatter ? valueFormatter(item.value) : item.value;
+
+            return (
+              <div className="bar-row" key={item.label}>
+                <div className="bar-label">{labelFormatter(item.label)}</div>
+                <div className="bar-track">
+                  <span className={`bar-fill bar-fill-${index % 4}`} style={{ width }} />
+                </div>
+                <div className="bar-value">{displayValue}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function App() {
   const auth = useAuth();
 
@@ -15,6 +82,9 @@ function App() {
   const [copied, setCopied] = useState(false);
 
   const idToken = auth.user?.id_token;
+  const events = Array.isArray(dataResponse?.data) ? dataResponse.data : [];
+  const totalValueByDevice = buildTotalsByDevice(events);
+  const eventsByStatus = buildCounts(events, "status");
 
   // Call backend when we have an idToken
   useEffect(() => {
@@ -157,7 +227,7 @@ function App() {
                 </div>
               </div>
               <pre className="code-block">
-                ID Token: {showToken ? auth.user?.id_token : "••••••••••••••••••••"}
+                ID Token: {showToken ? auth.user?.id_token : "********************"}
               </pre>
             </section>
 
@@ -177,7 +247,58 @@ function App() {
               {loadingData ? (
                 <p className="muted">Loading data...</p>
               ) : dataResponse ? (
-                <pre className="code-block">{JSON.stringify(dataResponse, null, 2)}</pre>
+                <>
+                  <p className="data-meta">
+                    Role: <strong>{dataResponse.role}</strong>
+                    <span>Device: {dataResponse.device_id || "all devices"}</span>
+                    <span>Events: {events.length}</span>
+                  </p>
+
+                  <div className="charts-grid">
+                    <SimpleBarChart
+                      title="Total Value by Device"
+                      items={totalValueByDevice}
+                      valueFormatter={(value) => value.toLocaleString()}
+                    />
+                    <SimpleBarChart
+                      title="Events by Status"
+                      items={eventsByStatus}
+                      labelFormatter={formatStatus}
+                      valueFormatter={(value) => `${value} event${value === 1 ? "" : "s"}`}
+                    />
+                  </div>
+
+                  <div className="table-wrap">
+                    <table className="events-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Device ID</th>
+                          <th>Timestamp</th>
+                          <th>Event Type</th>
+                          <th>Value</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {events.map((event) => (
+                          <tr key={event.id}>
+                            <td>{event.id}</td>
+                            <td>{event.device_id}</td>
+                            <td>{formatTimestamp(event.timestamp)}</td>
+                            <td>{formatEventType(event.event_type)}</td>
+                            <td>{event.value}</td>
+                            <td>
+                              <span className={`status-pill status-${event.status}`}>
+                                {formatStatus(event.status)}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               ) : (
                 <p className="muted">No data loaded yet.</p>
               )}
