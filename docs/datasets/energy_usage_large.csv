@@ -1,4 +1,4 @@
-device_id,timestamp,kwh,location
+    device_id,timestamp,kwh,location
 E-001,2025-10-01T00:00:00+00:00,0.999,CLUJ-B
 E-001,2025-10-01T01:00:00+00:00,0.872,CLUJ-B
 E-001,2025-10-01T02:00:00+00:00,1.03,CLUJ-B
